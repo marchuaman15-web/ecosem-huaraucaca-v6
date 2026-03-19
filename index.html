@@ -12,7 +12,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800;900&family=Barlow:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap"
     rel="stylesheet">
-  <!-- Estilos Glassmorphism Mejorados -->
+  <!-- Estilos integrados en el archivo -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js"></script>
@@ -1869,7 +1869,7 @@
       <input type="password" id="li-pass" placeholder="••••••••" autocomplete="current-password"
         onkeydown="if(event.key==='Enter')doLogin()">
     </div>
-    <button class="btn-login" id="btn-login" onclick="iniciarSesionECOSEM()">Ingresar al Sistema →</button>
+    <button class="btn-login" id="btn-login" onclick="doLogin()">Ingresar al Sistema →</button>
     <div class="login-err" id="login-err"></div>
     <div style="margin-top:1.5rem;font-size:0.6rem;color:var(--mut);text-align:center;line-height:1.8;">
       ECOSEM HUARAUCACA — Sistema OT v6.0<br>© 2025 · Uso interno exclusivo
@@ -3348,7 +3348,7 @@
 
     body.innerHTML = '<div style="max-width:960px;margin:0 auto;">'
       + '<div style="background:var(--dark2);border:1px solid var(--bdr2);border-radius:12px;padding:12px 14px;margin-bottom:1rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">'
-      + '<div style="font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:1rem;color:var(--gold);letter-spacing:1px;">🖨️ IMPRIMIR ÓRDENES DE TRABAJO</div>'
+      + '<div style="font-family:\'Barlow Condensed\',sans-serif;font-weight:800;font-size:1rem;color:var(--gold);letter-spacing:1px;">🖨️ IMPRIMIR ÓRDENES DE TRABAJO</div>'
       + '<div style="font-size:0.75rem;color:var(--mut);">' + ots.length + ' OTs disponibles</div>'
       + '</div>'
       + '<div style="overflow-x:auto;border-radius:12px;border:1px solid var(--bdr2);">'
