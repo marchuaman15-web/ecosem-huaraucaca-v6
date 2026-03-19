@@ -1,9 +1,12 @@
-// ECOSEM V.6 — Service Worker Optimizado
-const CACHE_NAME = 'ecosem-v7-cache-v1';
-const RUNTIME_CACHE = 'ecosem-v7-runtime-v1';
+// ECOSEM V.6 — Service Worker Optimizado (SIN ERROR DE CLONE)
+const CACHE_NAME = 'ecosem-v7-cache-v2';
+const RUNTIME_CACHE = 'ecosem-v7-runtime-v2';
 
 const ASSETS_TO_CACHE = [
-  './', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './firebase_setup.js',
+  './', 
+  './index.html', 
+  './manifest.json', 
+  './firebase_setup.js',
   'https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js',
   'https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js',
   'https://www.gstatic.com/firebasejs/8.10.1/firebase-firestore.js',
@@ -11,35 +14,90 @@ const ASSETS_TO_CACHE = [
 ];
 
 self.addEventListener('install', event => {
-  event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS_TO_CACHE)).then(() => self.skipWaiting()).catch(err => console.error('[SW] Error en install:', err)));
+  event.waitUntil(
+    caches.open(CACHE_NAME)
+      .then(cache => cache.addAll(ASSETS_TO_CACHE))
+      .then(() => self.skipWaiting())
+      .catch(err => console.error('[SW] Error en install:', err))
+  );
 });
 
 self.addEventListener('activate', event => {
-  event.waitUntil(caches.keys().then(names => Promise.all(names.filter(n => n !== CACHE_NAME && n !== RUNTIME_CACHE).map(n => caches.delete(n)))).then(() => self.clients.claim()));
+  event.waitUntil(
+    caches.keys()
+      .then(names => Promise.all(
+        names.filter(n => n !== CACHE_NAME && n !== RUNTIME_CACHE)
+          .map(n => caches.delete(n))
+      ))
+      .then(() => self.clients.claim())
+  );
 });
 
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
-  if (request.method !== 'GET') return;
-  if (url.origin.includes('firebaseapp.com') || url.origin.includes('googleapis.com')) return;
-
-  if (request.mode === 'navigate' || request.destination === 'document') {
-    event.respondWith(fetch(request).then(r => { caches.open(RUNTIME_CACHE).then(c => c.put(request, r.clone())); return r; }).catch(() => caches.match(request).then(c => c || caches.match('./index.html'))));
+  
+  // No cachear Firebase ni Google APIs
+  if (url.origin.includes('firebaseapp.com') || 
+      url.origin.includes('googleapis.com') ||
+      url.origin.includes('firestore.googleapis.com')) {
     return;
   }
 
-  event.respondWith(caches.match(request).then(cached => {
-    if (cached) return cached;
-    return fetch(request).then(r => {
-      if (!r || r.status !== 200 || r.type === 'error') return r;
-      caches.open(RUNTIME_CACHE).then(c => c.put(request, r.clone()));
-      return r;
-    }).catch(() => new Response('Offline', { status: 503, statusText: 'Service Unavailable', headers: new Headers({'Content-Type':'text/plain'}) }));
-  }));
+  // Solo cachear peticiones GET
+  if (request.method !== 'GET') return;
+
+  // Para navegación (HTML)
+  if (request.mode === 'navigate' || request.destination === 'document') {
+    event.respondWith(
+      fetch(request)
+        .then(response => {
+          // CLONAR antes de usar
+          const responseClone = response.clone();
+          caches.open(RUNTIME_CACHE).then(c => c.put(request, responseClone));
+          return response;
+        })
+        .catch(() => 
+          caches.match(request).then(c => c || caches.match('./index.html'))
+        )
+    );
+    return;
+  }
+
+  // Para otros recursos (CSS, JS, imágenes)
+  event.respondWith(
+    caches.match(request)
+      .then(cached => {
+        if (cached) return cached;
+        
+        return fetch(request)
+          .then(response => {
+            // Verificar que la respuesta es válida antes de cachear
+            if (!response || response.status !== 200 || response.type === 'error') {
+              return response;
+            }
+            
+            // CLONAR antes de guardar en caché
+            const responseClone = response.clone();
+            caches.open(RUNTIME_CACHE).then(c => c.put(request, responseClone));
+            return response;
+          })
+          .catch(() => new Response('Offline', { 
+            status: 503, 
+            statusText: 'Service Unavailable', 
+            headers: new Headers({'Content-Type':'text/plain'}) 
+          }));
+      })
+  );
 });
 
 self.addEventListener('message', event => {
-  if (event.data?.type === 'SKIP_WAITING') self.skipWaiting();
-  if (event.data?.type === 'CLEAR_CACHE') event.waitUntil(caches.keys().then(names => Promise.all(names.map(n => caches.delete(n)))));
+  if (event.data?.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+  if (event.data?.type === 'CLEAR_CACHE') {
+    event.waitUntil(
+      caches.keys().then(names => Promise.all(names.map(n => caches.delete(n))))
+    );
+  }
 });
