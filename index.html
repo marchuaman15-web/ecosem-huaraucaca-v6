@@ -1900,13 +1900,12 @@
 
 <script>
   // Ocultar splash screen después de 3 segundos
-  setTimeout(() => {
-    const splash = document.getElementById('splash-screen');
-    if (splash) {
-      splash.style.display = 'none';
-    }
-  }, 3300);
-</script>
+setTimeout(() => {
+  const splash = document.getElementById('splash-screen');
+  if (splash) {
+    splash.remove(); // Eliminar completamente en lugar de ocultar
+  }
+}, 3300);
 <!-- ═══════════════════════════════════════════════════════════════════════════ -->
 
 <!-- BOTTOM NAV -->
