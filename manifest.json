@@ -2,7 +2,7 @@
   "name": "ECOSEM HUARAUCACA — Sistema OT",
   "short_name": "ECOSEM OT",
   "description": "Sistema de Gestión de Órdenes de Trabajo",
-  "start_url": "./index.html",
+  "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait-primary",
